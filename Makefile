@@ -5,7 +5,7 @@ lovefile = LovePlayground.love
 all: zip run_android
 
 zip:
-	@zip -9 -r $(lovefile) .
+	@zip -9 -r $(lovefile) . -x ".*"
 	mv $(lovefile) bin/
 
 run_android:

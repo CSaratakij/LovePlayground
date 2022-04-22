@@ -6,7 +6,9 @@ talkingSystem.filter = tiny.requireAll("id", "name", "mass", "phrase")
 
 function talkingSystem:process(e, dt)
 	e.mass = e.mass + (dt * 3)
-	logs[e.id] = ("%s who weighs %d pounds, says %q."):format(e.name, e.mass, e.phrase)
+	local strLogMessaage = ("%s who weighs %d pounds, says %q."):format(e.name, e.mass, e.phrase)
+	logs[e.id] = "[LOG]: "..strLogMessaage
+	print(strLogMessaage)
 end
 
 local someEntity =
@@ -20,10 +22,25 @@ local someEntity =
 
 local world = tiny.world(talkingSystem, someEntity)
 
-for i = 1, 10 do
-	world:update(1)
+function love.load(args)
+	print("*** Begin Loading ***")
+	love.window.setFullscreen(true)
+	for i = 1, 10 do
+		world:update(1)
+	end
 end
 
+function love.update(dt)
+	if love.keyboard.isDown("left") then
+		print("Pressed : left")
+	elseif love.keyboard.isDown("right") then
+		print("Pressed : right")
+	elseif love.keyboard.isDown("up") then
+		print("Pressed : up")
+	elseif love.keyboard.isDown("down") then
+		print("Pressed : down")
+	end
+end
 
 function love.draw()
 	love.graphics.clear(0, 0, 1, 1)
@@ -31,7 +48,7 @@ function love.draw()
 
 	local offsetY = 10
 	for index, value in pairs(logs) do
-		love.graphics.print(value, 300, (400 + offsetY))
+		love.graphics.print(value, 300, (100 + offsetY))
 		offsetY = offsetY + 4
 	end
 end

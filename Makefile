@@ -6,6 +6,7 @@ all: zip run_android
 
 zip:
 	@zip -9 -r $(lovefile) . -x ".*"
+	mkdir -p bin/
 	mv $(lovefile) bin/
 
 run_android:

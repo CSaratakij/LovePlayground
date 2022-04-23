@@ -45,6 +45,15 @@ local circleEntity = {
 	velocity = {
 		x = 10,
 		y = 0
+	},
+	shape = "circle",
+	radius = 40,
+	segment = 50,
+	color = {
+		r = 1,
+		g = 1,
+		b = 1,
+		a = 1
 	}
 }
 
@@ -108,8 +117,9 @@ function love.draw()
 	love.graphics.print(("X: %.3f"):format(circleEntity.position.x), 20, 50)
 	love.graphics.print(("Y: %.3f"):format(circleEntity.position.y), 20, 80)
 
-	love.graphics.setColor(1, 1, 1)
-	love.graphics.circle("fill", circleEntity.position.x, circleEntity.position.y, 40, 100)
+	love.graphics.setColor(circleEntity.color.r, circleEntity.color.g, circleEntity.color.b, circleEntity.color.a)
+	--love.graphics.circle("fill", circleEntity.position.x, circleEntity.position.y, 40, 100)
+	love.graphics.circle("fill", circleEntity.position.x, circleEntity.position.y, circleEntity.radius, circleEntity.segment)
 	--[[
 	local offsetY = 10
 	for index, value in pairs(logs) do

@@ -2,8 +2,9 @@
 - personal love2d playground in Termux (Android, aarch64)
 
 # Getting Started
-- run "make"
-- run "debug.sh" after you adb to device to view logcat within termux (adb to localhost after enable "Wireless Debugging"
+- Run "make" to build & run .love
+- Run "debug.sh" after adb to device to view logcat within termux, this will buld & run .love as well
+(adb to localhost after enable "Wireless Debugging")
 
 # Dependencies
 - Termux

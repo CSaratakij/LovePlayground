@@ -1,4 +1,24 @@
 local tiny = require("lib/tiny")
+local tactile = require("lib/tactile")
+local baton = require("lib/baton")
+
+local shouldShowStat = true
+
+-- Input
+local input = baton.new {
+  controls = {
+    left = {'key:left', 'key:a', 'axis:leftx-', 'button:dpleft'},
+    right = {'key:right', 'key:d', 'axis:leftx+', 'button:dpright'},
+    up = {'key:up', 'key:w', 'axis:lefty-', 'button:dpup'},
+    down = {'key:down', 'key:s', 'axis:lefty+', 'button:dpdown'},
+    action = {'key:x', 'button:a'},
+    toggleStat = {'key:f1'}
+  },
+  pairs = {
+    move = {'left', 'right', 'up', 'down'}
+  },
+  joystick = love.joystick.getJoysticks()[1],
+}
 
 -- Movement System
 local movementSystem = tiny.processingSystem()
@@ -51,27 +71,17 @@ end
 
 -- TODO : add input system
 function love.update(dt)
+	input:update()
+
+	if input:pressed("toggleStat") then
+		shouldShowStat = not shouldShowStat
+	end
+
+	local x, y = input:get("move")
 	local direction = { x, y }
 
-	if love.keyboard.isDown("left") then
-		-- print("Pressed : left")
-		direction.x = -1
-	elseif love.keyboard.isDown("right") then
-		-- print("Pressed : right")
-		direction.x = 1
-	else
-		direction.x = 0
-	end
-
-	if love.keyboard.isDown("up") then
-		-- print("Pressed : up")
-		direction.y = -1
-	elseif love.keyboard.isDown("down") then
-		-- print("Pressed : down")
-		direction.y = 1
-	else
-		direction.y = 0
-	end
+	direction.x = x
+	direction.y = y
 
 	magnitude = math.sqrt((direction.x * direction.x) + (direction.y * direction.y))
 
@@ -86,10 +96,12 @@ end
 
 -- TODO : add render system
 function love.draw()
-	love.graphics.clear(0, 0, 1, 1)
-	love.graphics.print(("FPS: %.1f"):format(love.timer.getFPS()), 20, 20)
-	love.graphics.print(("X: %.3f"):format(circleEntity.position.x), 20, 50)
-	love.graphics.print(("Y: %.3f"):format(circleEntity.position.y), 20, 80)
+	love.graphics.clear(0.2, 0.2, 0.2, 1)
+	if shouldShowStat == true then
+		love.graphics.print(("FPS: %.1f"):format(love.timer.getFPS()), 20, 20)
+		love.graphics.print(("X: %.3f"):format(circleEntity.position.x), 20, 50)
+		love.graphics.print(("Y: %.3f"):format(circleEntity.position.y), 20, 80)
+	end
 	love.graphics.setColor(circleEntity.color.r, circleEntity.color.g, circleEntity.color.b, circleEntity.color.a)
 	love.graphics.circle("fill", circleEntity.position.x, circleEntity.position.y, circleEntity.radius, circleEntity.segment)
 end

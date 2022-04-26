@@ -1,16 +1,4 @@
-local tiny = require("tiny")
-local logs = {}
-
--- Talking System
-local talkingSystem = tiny.processingSystem()
-talkingSystem.filter = tiny.requireAll("id", "name", "mass", "phrase")
-
-function talkingSystem:process(e, dt)
-	e.mass = e.mass + (dt * 3)
-	local strLogMessaage = ("%s who weighs %d pounds, says %q."):format(e.name, e.mass, e.phrase)
-	logs[e.id] = "[LOG]: "..strLogMessaage
-	print(strLogMessaage)
-end
+local tiny = require("lib/tiny")
 
 -- Movement System
 local movementSystem = tiny.processingSystem()
@@ -24,14 +12,6 @@ function movementSystem:process(e, dt)
 end
 
 -- Entity
-local someEntity = {
-	id = 0,
-	name = "John, Smith",
-	phrase = "I'm gonna save the world.",
-	mass = 64,
-	hariColor = "brown"
-}
-
 local circleEntity = {
 	moveSpeed = 600,
 	position = {
@@ -63,12 +43,6 @@ local gameWorld = tiny.world(movementSystem, circleEntity)
 function love.load(args)
 	print("*** Begin Loading ***")
 	love.window.setFullscreen(true)
-	--[[
-	print("*** System: Test World ***")
-	for i = 1, 10 do
-		testWorld:update(1)
-	end
-	]]--
 	for i = 1, 10 do
 		print(("Test stdout on android (logcat) : %d"):format(i))
 	end
@@ -116,15 +90,6 @@ function love.draw()
 	love.graphics.print(("FPS: %.1f"):format(love.timer.getFPS()), 20, 20)
 	love.graphics.print(("X: %.3f"):format(circleEntity.position.x), 20, 50)
 	love.graphics.print(("Y: %.3f"):format(circleEntity.position.y), 20, 80)
-
 	love.graphics.setColor(circleEntity.color.r, circleEntity.color.g, circleEntity.color.b, circleEntity.color.a)
-	--love.graphics.circle("fill", circleEntity.position.x, circleEntity.position.y, 40, 100)
 	love.graphics.circle("fill", circleEntity.position.x, circleEntity.position.y, circleEntity.radius, circleEntity.segment)
-	--[[
-	local offsetY = 10
-	for index, value in pairs(logs) do
-		love.graphics.print(value, 300, (100 + offsetY))
-		offsetY = offsetY + 4
-	end
-	]]--
 end

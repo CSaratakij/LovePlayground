@@ -1,8 +1,9 @@
 local tiny = require("lib/tiny")
-local tactile = require("lib/tactile")
 local baton = require("lib/baton")
 
-local shouldShowStat = true
+local shouldShowDebugStat = true
+local drawFilter = tiny.requireAll("isDrawSystem")
+local updateFilter = tiny.rejectAny("isDrawSystem")
 
 -- Input
 local input = baton.new {
@@ -20,61 +21,15 @@ local input = baton.new {
   joystick = love.joystick.getJoysticks()[1],
 }
 
--- Movement System
-local movementSystem = tiny.processingSystem()
-movementSystem.filter = tiny.requireAll("position", "moveDirection", "velocity")
+-- System
+local playerInputSystem = tiny.processingSystem()
+playerInputSystem.filter = tiny.requireAll("playerInput", "moveDirection")
 
-function movementSystem:process(e, dt)
-	e.velocity.x = (e.moveDirection.x * e.moveSpeed)
-	e.velocity.y = (e.moveDirection.y * e.moveSpeed)
-	e.position.x = e.position.x + (e.velocity.x * dt)
-	e.position.y = e.position.y + (e.velocity.y * dt)
-end
+function playerInputSystem:process(e, dt)
+	playerInput = e.playerInput
 
--- Entity
-local circleEntity = {
-	moveSpeed = 600,
-	position = {
-		x = 400,
-		y = 200
-	},
-	moveDirection = {
-		x = 0,
-		y = 0
-	},
-	velocity = {
-		x = 10,
-		y = 0
-	},
-	shape = "circle",
-	radius = 40,
-	segment = 50,
-	color = {
-		r = 1,
-		g = 1,
-		b = 1,
-		a = 1
-	}
-}
-
-local testWorld = tiny.world(talkingSystem, someEntity)
-local gameWorld = tiny.world(movementSystem, circleEntity)
-
-function love.load(args)
-	print("*** Begin Loading ***")
-	love.window.setFullscreen(true)
-	for i = 1, 10 do
-		print(("Test stdout on android (logcat) : %d"):format(i))
-	end
-	print("*** End Loading ***")
-end
-
--- TODO : add input system
-function love.update(dt)
-	input:update()
-
-	if input:pressed("toggleStat") then
-		shouldShowStat = not shouldShowStat
+	if not playerInput.isAllowInput then
+		return
 	end
 
 	local x, y = input:get("move")
@@ -90,18 +45,104 @@ function love.update(dt)
 		direction.y = (direction.y / magnitude)
 	end
 
-	circleEntity.moveDirection = direction
-	gameWorld:update(dt)
+	e.moveDirection = direction
 end
 
--- TODO : add render system
+local movementSystem = tiny.processingSystem()
+movementSystem.filter = tiny.requireAll("position", "moveDirection", "velocity")
+
+function movementSystem:process(e, dt)
+	velocity = e.velocity
+	position = e.position
+	moveDirection = e.moveDirection
+	velocity.x = (moveDirection.x * e.moveSpeed)
+	velocity.y = (moveDirection.y * e.moveSpeed)
+	position.x = position.x + (velocity.x * dt)
+	position.y = position.y + (velocity.y * dt)
+end
+
+local primitiveRenderSystem = tiny.processingSystem()
+primitiveRenderSystem.isDrawSystem = true
+primitiveRenderSystem.filter = tiny.requireAll("position", "primitiveShape")
+
+function primitiveRenderSystem:process(e, dt)
+	position = e.position
+	primitiveShape = e.primitiveShape
+	if primitiveShape.shape == "circle" then
+		love.graphics.setColor(primitiveShape.color.r, primitiveShape.color.g, primitiveShape.color.b, primitiveShape.color.a)
+		love.graphics.circle("fill", position.x, position.y, primitiveShape.radius, primitiveShape.segment)
+	end
+end
+
+-- Entity
+local player = {
+	playerInput = {
+		id = 0,
+		isAllowInput = true
+	},
+	moveSpeed = 600,
+	position = {
+		x = 400,
+		y = 200
+	},
+	moveDirection = {
+		x = 0,
+		y = 0
+	},
+	velocity = {
+		x = 10,
+		y = 0
+	},
+	primitiveShape = {
+		shape = "circle",
+		radius = 40,
+		segment = 50,
+		color = {
+			r = 1,
+			g = 1,
+			b = 1,
+			a = 1
+		}
+	}
+}
+
+local gameWorld = tiny.world(
+	playerInputSystem,
+	movementSystem,
+	primitiveRenderSystem,
+	player
+)
+
+function love.load(args)
+	print("*** Begin Loading ***")
+	love.window.setFullscreen(true)
+	for i = 1, 10 do
+		print(("Test stdout on android (logcat) : %d"):format(i))
+	end
+	print("*** End Loading ***")
+end
+
+function love.update(dt)
+	input:update()
+
+	if input:pressed("toggleStat") then
+		shouldShowDebugStat = not shouldShowDebugStat
+	end
+
+	gameWorld:update(dt, updateFilter)
+end
+
 function love.draw()
 	love.graphics.clear(0.2, 0.2, 0.2, 1)
-	if shouldShowStat == true then
-		love.graphics.print(("FPS: %.1f"):format(love.timer.getFPS()), 20, 20)
-		love.graphics.print(("X: %.3f"):format(circleEntity.position.x), 20, 50)
-		love.graphics.print(("Y: %.3f"):format(circleEntity.position.y), 20, 80)
+	if shouldShowDebugStat then
+		drawStat()
 	end
-	love.graphics.setColor(circleEntity.color.r, circleEntity.color.g, circleEntity.color.b, circleEntity.color.a)
-	love.graphics.circle("fill", circleEntity.position.x, circleEntity.position.y, circleEntity.radius, circleEntity.segment)
+	local dt = love.timer.getDelta()
+	gameWorld:update(dt, drawFilter)
+end
+
+function drawStat()
+	love.graphics.print(("FPS: %.1f"):format(love.timer.getFPS()), 20, 20)
+	love.graphics.print(("X: %.3f"):format(player.position.x), 20, 50)
+	love.graphics.print(("Y: %.3f"):format(player.position.y), 20, 80)
 end

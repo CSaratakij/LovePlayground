@@ -19,6 +19,7 @@ run_linux:
 	love bin/$(lovefile)
 
 run_android:
+	mkdir -p ~/storage/downloads/lovegame
 	cp bin/$(lovefile) ~/storage/downloads/lovegame/
 	am start -d "file:///sdcard/Download/lovegame/$(lovefile)" --user 0 -t "application/*" -n org.love2d.android/org.love2d.android.GameActivity
 

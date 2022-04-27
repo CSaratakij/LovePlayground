@@ -132,6 +132,14 @@ function love.load(args)
 	love.window.setFullscreen(true)
 end
 
+function love.touchpressed(id, x, y, dx, dy, pressure)
+    player.position.px = player.position.x
+    player.position.py = player.position.y
+    player.position.x = x
+    player.position.y = y
+    print(("Touch pressed : [ %.2f, %.2f ]"):format(x, y))
+end
+
 --local counter = 0
 function love.update(dt)
 	input:update()

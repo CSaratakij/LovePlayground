@@ -2,12 +2,21 @@
 
 lovefile = LovePlayground.love
 
-all: zip run_android
+ifeq ($(findstring Android, $(shell uname -a)), Android)
+	runcommand = run_android
+else
+	runcommand = run_linux
+endif
+
+all: zip $(runcommand)
 
 zip:
 	@zip -9 -r $(lovefile) . -x ".*"
 	mkdir -p bin/
 	mv $(lovefile) bin/
+
+run_linux:
+	love bin/$(lovefile)
 
 run_android:
 	cp bin/$(lovefile) ~/storage/downloads/lovegame/

@@ -20,5 +20,5 @@
 - make
 - zip
 - android-tools
-- Termux
+- Termux (from F-Droid)
 - love2d (android app)

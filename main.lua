@@ -3,7 +3,7 @@ local tiny = require("lib/tiny")
 local baton = require("lib/baton")
 
 local MAX_FPS = 60
-local MS_PERUPDATE = (1 / 60)
+local MS_PER_UPDATE = (1 / 60)
 local DEFAULT_TIMESCALE = 1.0
 
 local shouldShowDebugStat = true
@@ -127,7 +127,7 @@ local gameWorld = tiny.world(
 
 function love.load(args)
 	tick.framerate = MAX_FPS
-	tick.rate = MS_PERUPDATE
+	tick.rate = MS_PER_UPDATE
 	tick.timescale = DEFAULT_TIMESCALE
 	love.window.setFullscreen(true)
 end
@@ -153,7 +153,7 @@ end
 
 function love.draw()
 	love.graphics.clear(0.2, 0.2, 0.2, 1)
-	local renderDelta = (tick.accum / MS_PERUPDATE)
+	local renderDelta = (tick.accum / MS_PER_UPDATE)
 	gameWorld:update(renderDelta, drawFilter)
 	--print(("render(dt): %.3f"):format(renderDT))
 	if shouldShowDebugStat then

@@ -1,7 +1,10 @@
 local tick = require("lib/tick")
 local tiny = require("lib/tiny")
 local baton = require("lib/baton")
+local push = require("lib/push")
 
+local GAME_WIDTH = 1024
+local GAME_HEIGHT = 768
 local MAX_FPS = 60
 local MS_PER_UPDATE = (1 / 60)
 local DEFAULT_TIMESCALE = 1.0
@@ -31,7 +34,7 @@ local playerInputSystem = tiny.processingSystem()
 playerInputSystem.filter = tiny.requireAll("playerInput", "moveDirection")
 
 function playerInputSystem:process(e, dt)
-	playerInput = e.playerInput
+	local playerInput = e.playerInput
 
 	if not playerInput.isAllowInput then
 		return
@@ -43,7 +46,7 @@ function playerInputSystem:process(e, dt)
 	direction.x = x
 	direction.y = y
 
-	magnitude = math.sqrt((direction.x * direction.x) + (direction.y * direction.y))
+	local magnitude = math.sqrt((direction.x * direction.x) + (direction.y * direction.y))
 
 	if magnitude > 1.0 then
 		direction.x = (direction.x / magnitude)
@@ -57,13 +60,16 @@ local movementSystem = tiny.processingSystem()
 movementSystem.filter = tiny.requireAll("position", "moveDirection", "velocity")
 
 function movementSystem:process(e, dt)
-	velocity = e.velocity
-	position = e.position
-	moveDirection = e.moveDirection
+	local velocity = e.velocity
+	local position = e.position
+	local moveDirection = e.moveDirection
+
 	velocity.x = (moveDirection.x * e.moveSpeed)
 	velocity.y = (moveDirection.y * e.moveSpeed)
+
 	position.px = position.x
 	position.py = position.y
+
 	position.x = position.px + (velocity.x * dt)
 	position.y = position.py + (velocity.y * dt)
 end
@@ -73,12 +79,13 @@ primitiveRenderSystem.isDrawSystem = true
 primitiveRenderSystem.filter = tiny.requireAll("position", "primitiveShape")
 
 function primitiveRenderSystem:process(e, dt)
-	position = e.position
-	primitiveShape = e.primitiveShape
+	local position = e.position
+	local primitiveShape = e.primitiveShape
+
 	if (primitiveShape.shape == "circle") then
-        color = primitiveShape.color
-        x = position.px + (position.x - position.px) * dt
-        y = position.py + (position.y - position.py) * dt
+        local color = primitiveShape.color
+        local x = position.px + (position.x - position.px) * dt
+        local y = position.py + (position.y - position.py) * dt
 		love.graphics.setColor(color.r, color.g, color.b, color.a)
 		love.graphics.circle("fill", x, y, primitiveShape.radius, primitiveShape.segment)
 	end
@@ -92,8 +99,8 @@ local player = {
 	},
 	moveSpeed = 600,
 	position = {
-		x = 400,
-		y = 200,
+		x = GAME_WIDTH * 0.5,
+		y = GAME_HEIGHT * 0.5,
 		px = 0,
 		py = 0
 	},
@@ -130,6 +137,14 @@ function love.load(args)
 	tick.rate = MS_PER_UPDATE
 	tick.timescale = DEFAULT_TIMESCALE
 	love.window.setFullscreen(true)
+    local screenWidth, screenHeight = love.window.getDesktopDimensions()
+    --local gameScale = 0.5
+    --push:setupScreen(screenWidth * gameScale, screenHeight * gameScale, screenWidth, screenHeight, { fullscreen = true, resizable = false })
+    push:setupScreen(GAME_WIDTH, GAME_HEIGHT, screenWidth, screenHeight, { fullscreen = true, resizable = false })
+end
+
+function love.resize(w, h)
+    push:resize(w, h)
 end
 
 function love.touchpressed(id, x, y, dx, dy, pressure)
@@ -152,26 +167,28 @@ function love.update(dt)
 end
 
 function love.draw()
-	love.graphics.clear(0.2, 0.2, 0.2, 1)
 	local renderDelta = (tick.accum / MS_PER_UPDATE)
-	gameWorld:update(renderDelta, drawFilter)
+    push:start()
+	love.graphics.clear(0.2, 0.2, 0.2, 1)
 	--print(("render(dt): %.3f"):format(renderDT))
+	gameWorld:update(renderDelta, drawFilter)
 	if shouldShowDebugStat then
 		drawStat()
 	end
+    push:finish()
 end
 
 -- Debug Stats
 function drawStat()
-    debugStats = {
+    local debugStats = {
         ("FPS: %.1f"):format(love.timer.getFPS()),
         ("dt: %.3f"):format(tick.rate),
         ("X: %.3f"):format(player.position.x),
         ("Y: %.3f"):format(player.position.y)
     }
 
-    x, y = 20, 10
-    offset = 20
+    local x, y = 20, 10
+    local offset = 20
 
     for key,value in pairs(debugStats) do
         love.graphics.print(debugStats[key], x, y)

@@ -10,6 +10,7 @@
 # Run Option
 - $make : build .love
 - $make all : build & run .love (local)
+- $make run : run previous build .love (local)
 - $debug-local.sh : build, run & print logcat (adb to localhost required)
 - $debug-external.sh : build, run & print logcat of other device (adb to other devices required, other device need to install love2d app as well)
 

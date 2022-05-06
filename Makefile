@@ -25,6 +25,8 @@ build_android: zip build_linux
 	mkdir -p ~/storage/downloads/lovegame
 	cp bin/$(lovefile) ~/storage/downloads/lovegame/
 
+run: $(runcommand)
+
 run_linux:
 	love bin/$(lovefile)
 

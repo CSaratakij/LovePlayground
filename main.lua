@@ -190,7 +190,7 @@ function drawStat()
     local x, y = 20, 10
     local offset = 20
 
-    for key,value in pairs(debugStats) do
+    for key in pairs(debugStats) do
         love.graphics.print(debugStats[key], x, y)
         y = y + offset
     end

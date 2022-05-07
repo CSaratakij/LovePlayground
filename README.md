@@ -16,6 +16,7 @@
 
 # Note
 - Before $adb connect, don't forget to pair first
+- All run options support up to love v.11.3 due to Android 10 scoped storage restrictions
 
 # Dependencies
 - make

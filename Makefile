@@ -31,7 +31,7 @@ run_linux:
 	love bin/$(lovefile)
 
 run_android:
-	am start -S -n "org.love2d.android/.GameActivity" -d "file:///sdcard/Download/lovegame/$(lovefile)"
+	am start -d "file:///sdcard/Download/lovegame/$(lovefile)" --user 0 -t "application/*" -n org.love2d.android/.GameActivity
 
 clean:
 	rm -f bin/$(lovefile)

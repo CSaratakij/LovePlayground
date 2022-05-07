@@ -150,9 +150,13 @@ end
 function love.touchpressed(id, x, y, dx, dy, pressure)
     player.position.px = player.position.x
     player.position.py = player.position.y
-    player.position.x = x
-    player.position.y = y
-    print(("Touch pressed : [ %.2f, %.2f ]"):format(x, y))
+    local gamePosX, gamePosY = push:toGame(x, y)
+    local shuldUpdatePosition = (gamePosX ~= nil) and (gamePosY ~= nil)
+    if shuldUpdatePosition then
+        player.position.x = gamePosX
+        player.position.y = gamePosY
+        print(("Touch pressed : [ %.2f, %.2f ]"):format(x, y))
+    end
 end
 
 --local counter = 0
